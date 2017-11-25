@@ -1,0 +1,5 @@
+- include: 'pxe.yml'
+  tags: ['pxe-tftp']
+
+- include: 'simpleweb.yml'
+  tags: ['pxe-web']

@@ -1,0 +1,18 @@
+#!/bin/sh
+# CUMULUS-AUTOPROVISIONING
+
+echo "RUNNING ZTP"
+
+mkdir /root/.ssh
+{% if ansible_system_vendor == "QEMU" %}
+echo "{{ staging_env_pub_key }}"  > /root/.ssh/authorized_keys
+{% else %}
+echo "{{ prod_env_pub_key }}"  > /root/.ssh/authorized_keys
+{%endif %}
+chmod 700 /root
+chmod 700 /root/.ssh
+chmod 400 /root/.ssh/authorized_keys
+chmod root:root /root/.ssh/authorized_keys
+
+# CUMULUS-AUTOPROVISIONING
+exit 0

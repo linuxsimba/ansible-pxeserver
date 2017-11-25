@@ -1,0 +1,84 @@
+# ONIE Server for Cumulus server as well
+# Example:
+# onie_installer_source: CumulusLinux-2.5.7-amd64.bin
+onie_installer_source: ""
+
+# Slack API URL:
+# Go to https://api.slack.com/incoming-webhooks to get one
+# TODO write a check in the tasks field to ensure this field is added
+slack_api_url: ""
+
+# IP to use to populate in the syslinux.cfg file to tell
+# This is the IP the PXE device will use to get its prseed.cfg or kickstart file
+pxe_ip: ''
+
+# Interface where the pxe IP resides. DNSmasq needs this to start properly
+pxe_interface: ''
+
+# Directory root for the TFTP service. This is configured in the
+# dnsmasq config file
+http_dir: '/tftpboot/www'
+
+# List of the initrd and linux/vmlinuz for various Operating systems
+# to install. Example
+# os_list
+#   trusty:
+#      initrd: [md5 for initrd file]
+#      linux:  [md5 of the vmlinuz/linux file]
+os_list:
+  xenial:
+    initrd: 52b8d5e44438623e11b644f44b90afab
+    linux: 1b31def73c61d37feb26626827ac0bb7
+  trusty-updates:
+    initrd: e08da33823cd309916a170a150d67a9e
+    linux:  i3fe4ef9bd97eff380565bc19b6590a47
+
+# List the categories of servers. Corresponds the different network configs
+# available. So far only foundation (bare metal) and osa_vm (virtual) are
+# supported
+# Define pxe profiles.
+# Name: name of the profile
+# OS: os to load. make sure OS is found in the os_list variable
+# nic: which nic to use to bootup. Set it to "auto" if you are not sure.
+#server_categories:
+#  - { name: foundation, os: xenial, nic: 'auto' }
+#  - { name: osa_vm, os: trusty-updates, nic: 'auto' }
+
+
+server_categories:
+  - { name: foundation, os: xenial }
+  - { name: osa_vm, os: trusty-updates }
+
+# List the interfaces and network prefixes that will be PXE enabled
+# Example:
+# The vlan 12 pool is used for Booting Cumulus Images
+# dhcp_pools:
+#   "bridge.12":
+#       start_ip: 172.1.1.10
+#       end_ip: 172.1.1.200
+#       gw: 172.17.1.1
+#       boot_cumulus_image: true
+#
+#   "bridge.100":
+#       start_ip: 172.10.1.1
+#       end_ip: 172.10.1.200
+#       gw: 172.10.1.1
+dhcp_pools: {}
+
+# List of DHCP hosts. The category used should match
+# one found in the server_categories.
+# TODO: catch a typo if a user doesn't use a category defined
+# in the server_categories
+# Example:
+# dhcp_hosts:
+#    host22:
+#       mac: "0c:11:22:33:44:55"
+#       ip:  "172.1.1.9
+#       category: "web"
+dhcp_hosts: {}
+
+
+# dns_nameservers: List of DNS servers to use
+# Example:
+# dns_nameservers: "192.168.100.1, 8.8.8.8, 8.8.8.4"
+dns_nameservers: ""

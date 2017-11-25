@@ -1,0 +1,71 @@
+- assert:
+    that: "pxe_ip != ''"
+- assert:
+    that: "pxe_interface != ''"
+- assert:
+    that: "slack_api_url != ''"
+- name: create tftpboot directory
+  file: path="/tftpboot/{{item}}" state=directory
+  with_items: "{{os_list}}"
+
+- name: copy ubuntu core netboot files
+  get_url:
+    url: "http://archive.ubuntu.com/ubuntu/dists/xenial/main/installer-amd64/current/images/netboot/netboot.tar.gz"
+    dest: "/root/core-netboot.tar.gz"
+
+- name: unarchive ubuntu netboot files
+  unarchive:
+    src: "/root/core-netboot.tar.gz"
+    dest: "/tftpboot/"
+    copy: no
+    creates: "/tftpboot/pxelinux.0"
+
+- name: make sure that the default pxelinux.cfg does not exist
+  file: path=/tftpboot/pxelinux.cfg/default state=absent
+
+- name: create pxe boot options in pxelinux.cfg/
+  template: src=pxelinux.cfg.j2 dest=/tftpboot/pxelinux.cfg/{{item.name}}.cfg mode=0644
+  with_items: "{{server_categories}}"
+
+- name: add pxeboot symlinks
+  file:
+    src: "/tftpboot/pxelinux.cfg/{{item.value.category}}.cfg"
+    dest: "/tftpboot/pxelinux.cfg/01-{{item.value.mac| regex_replace(':','-')|lower}}"
+    state: link
+  with_dict: "{{dhcp_hosts}}"
+  when: item.value.category is defined
+
+- name: install dnsmasq
+  apt: name=dnsmasq update_cache=yes
+  notify: restart dnsmasq
+
+- name: enabled dnsmasq at boot
+  service: name=dnsmasq enabled=yes
+
+- name: enable using /etc/dnsmasq.d
+  lineinfile:
+    regexp: ".*conf-dir.*"
+    line: "conf-dir=/etc/dnsmasq.d"
+    dest: "/etc/dnsmasq.conf"
+  notify: restart dnsmasq
+
+- name: create dnsmasq pxe config
+  template: src=dnsmasq_config.j2 dest=/etc/dnsmasq.d/pxe_config
+  notify: restart dnsmasq
+  tags: ['update_pxe_config']
+
+- name: copy kernel netboot ubuntu images
+  get_url:
+    url: "http://archive.ubuntu.com/ubuntu/dists/{{item}}/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64/linux"
+    dest: "/tftpboot/{{item}}/"
+    #  checksum: "md5:{{ os_list[item].linux }}"
+  with_items: "{{os_list.keys()}}"
+  tags: ['copy_linux_image']
+
+- name: copy initrd netboot ubuntu images
+  get_url:
+    url: "http://archive.ubuntu.com/ubuntu/dists/{{item}}/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64/initrd.gz"
+    dest: "/tftpboot/{{item}}/"
+    # checksum: "md5:{{ os_list[item].initrd }}"
+  with_items: "{{os_list}}"
+  tags: ['copy_linux_image']

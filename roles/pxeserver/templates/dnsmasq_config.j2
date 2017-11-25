@@ -1,0 +1,22 @@
+interface={{pxe_interface}}
+dhcp-boot=pxelinux.0
+enable-tftp
+tftp-root=/tftpboot
+dhcp-option=6,{{ dns_nameservers|join(',') }}
+
+# Network ranges
+{% for network_name, value in dhcp_pools.items() %}
+dhcp-range=set:{{network_name}},{{value.start_ip}},{{value.end_ip}},{{value.netmask}},10d
+dhcp-option=tag:{{network_name}},3,{{value.gw}}
+  {% if value.boot_cumulus_image is defined %}
+dhcp-option=tag:{{network_name}},114,"http://{{pxe_ip}}:8080/onie-installer"
+dhcp-option=tag:{{network_name}},239,"http://{{pxe_ip}}:8080/ztp_provisioning.sh"
+  {% endif %}
+{% endfor %}
+
+# static DHCP assignments
+{% for hostname, value in dhcp_hosts.items() %}
+{% if value.ip is defined %}
+dhcp-host={{value.mac}},{{hostname}},{{value.ip}}
+{% endif %}
+{% endfor %}

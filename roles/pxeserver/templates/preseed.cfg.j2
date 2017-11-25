@@ -1,0 +1,105 @@
+d-i debian-installer/locale string en_US
+
+
+d-i console-setup/ask_detect boolean false
+d-i console-setup/layoutcode string us
+
+
+d-i debconf debconf/frontend select Noninteractive
+
+
+d-i keyboard-configuration/xkb-keymap select us
+d-i keyboard-configuration/modelcode string pc105
+
+
+d-i netcfg/get_hostname string netbooted-ubuntu
+d-i netcfg/get_domain string mirantislab.local
+
+
+d-i mirror/country string manual
+d-i mirror/http/hostname string archive.ubuntu.com
+d-i mirror/http/directory string /ubuntu
+d-i mirror/http/proxy string
+
+
+d-i passwd/root-login boolean true
+d-i passwd/make-user boolean false
+# really long, hopefully hard to break password. Access root only via public key auth
+# d-i passwd/root-password password $1$FJFrKThg$s8vYSEC3fpEkNaq2zz5430
+# d-i passwd/root-password-again password $1$FJFrKThg$s8vYSEC3fpEkNaq2zz5430
+# For testing only
+d-i passwd/root-password password r00tme
+d-i passwd/root-password-again password r00tme
+d-i user-setup/allow-password-weak boolean true
+
+
+d-i user-setup/encrypt-home boolean false
+
+
+
+
+d-i clock-setup/utc boolean true
+d-i time/zone string UTC
+
+
+
+
+d-i finish-install/reboot_in_progress note
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i grub-installer/bootdev /dev/vda
+
+#d-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n1)" ; pvremove -y -ff `list-devices disk | head -n1`* || true
+
+
+d-i partman-auto-lvm/guided_size string max
+d-i partman-auto/choose_recipe select atomic
+d-i partman-auto/method string lvm
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+
+d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/device_remove_lvm boolean true
+
+
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/confirm_write_new_label boolean true
+
+
+
+
+d-i partman/default_filesystem string ext4
+
+
+d-i pkgsel/include string openssh-server vlan lldpd dos2unix bridge-utils vlan ifenslave curl python-pip
+d-i pkgsel/install-language-support boolean false
+d-i pkgsel/update-policy select unattended-upgrades
+d-i pkgsel/upgrade select full-upgrade
+
+
+d-i apt-setup/restricted boolean true
+d-i apt-setup/universe boolean true
+d-i apt-setup/multiverse boolean true
+d-i apt-setup/backports boolean true
+d-i apt-setup/non-free boolean true
+d-i apt-setup/contrib boolean true
+d-i apt-setup/security-updates boolean true
+
+d-i partman-basicfilesystems/choose_label string gpt
+d-i partman-basicfilesystems/default_label string gpt
+d-i partman-partitioning/choose_label string gpt
+d-i partman-partitioning/default_label string gpt
+d-i partman/choose_label string gpt
+d-i partman/default_label string gpt
+partman-partitioning partman-partitioning/choose_label select gpt
+
+tasksel tasksel/first multiselect standard, ubuntu-server
+
+
+d-i preseed/late_command string \
+    in-target wget http://{{pxe_ip}}:8080/network_config_{{ item.name }}.sh -O /root/network_config.sh; \
+    in-target dos2unix /root/network_config.sh; \
+    in-target bash /root/network_config.sh;

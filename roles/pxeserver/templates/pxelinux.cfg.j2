@@ -1,0 +1,14 @@
+# D-I config version 2.0
+# search path for the c32 support libraries (libcom32, libutil etc.)
+path ubuntu-installer/amd64/boot-screens/
+# include ubuntu-installer/amd64/boot-screens/menu.cfg
+ui ubuntu-installer/amd64/boot-screens/vesamenu.c32
+
+timeout 120
+
+default {{item.name}}_node_install
+
+label {{item.name}}_node_install
+  menu label {{item.name}}_node_install
+  kernel {{item.os}}/linux
+  append vga=788 initrd={{item.os}}/initrd.gz console-setup/ask_detect=false console-setup/layoutcode=us console-setup/modelcode=pc105 debconf/frontend=noninteractive debian-installer=en_US fb=false kbd-chooser/method=us keyboard-configuration/layout=USA keyboard-configuration/variant=USA locale=en_US netcfg/get_domain={{ dns_domain }}  netcfg/get_hostname=base-ubuntu netcfg/choose_interface={{item.nic}} grub-installer/bootdev=default preseed/url=http://{{pxe_ip}}:8080/{{item.name}}-preseed.cfg rootdelay=180

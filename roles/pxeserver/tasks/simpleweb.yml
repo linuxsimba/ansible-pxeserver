@@ -1,0 +1,43 @@
+- name: make http dir
+  file: path={{http_dir}} state=directory owner="www-data"
+
+- name: install nginx
+  apt: name=nginx
+
+- name: deploy simplified nginx config. restricts config to pxe interface
+  template:
+    src: "nginx_default.j2"
+    dest: /etc/nginx/sites-available/default
+    owner: "www-data"
+  notify: restart nginx
+
+- name: copy preseed files to www directory
+  template:
+    src: "preseed.cfg.j2"
+    dest: "{{http_dir}}/{{item.name}}-preseed.cfg"
+    owner: "www-data"
+  with_items: "{{server_categories}}"
+
+- name: copy preseed basic network config script
+  template:
+    src: "network_config_{{item.name}}.sh.j2"
+    dest: "{{http_dir}}/network_config_{{item.name}}.sh"
+  with_items: "{{ server_categories }}"
+
+- name: create symlink for onie-installer
+  file:
+    src: "{{http_dir}}/{{onie_installer_source}}"
+    dest: "{{http_dir}}/onie-installer"
+    mode: 0640
+    state: link
+    owner: www-data
+    group: root
+  ignore_errors: yes
+
+- name: install cumulus ZTP provisioning script
+  template:
+    src: ztp_provisioning.sh.j2
+    dest: "{{ http_dir }}/ztp_provisioning.sh"
+    mode: 0644
+    owner: www-data
+    group: root
