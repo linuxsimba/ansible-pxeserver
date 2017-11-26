@@ -15,8 +15,8 @@ Vagrant.configure(2) do |config|
 
   config.vm.define :pxeserver do |node|
     node.vm.provider :libvirt do |domain|
-      domain.memory = 4096
-      domain.cpus = 2
+      domain.memory = 1024
+      domain.cpus = 1
     end
 
     node.vm.box = 'ubuntu1604'
@@ -25,27 +25,27 @@ Vagrant.configure(2) do |config|
       :ip => '10.1.1.1',
       :prefix => '24',
       :libvirt__forward_mode => 'veryisolated',
-      :libvirt__network_name => 'rhevm_net',
+      :libvirt__network_name => 'pxetest_net',
       :libvirt__dhcp_enabled => false
 
     node.vm.provision :ansible do  |ansible|
       ansible.playbook = "pxeserver.yml"
+      ansible.tags = 'nat_masq'
+      ansible.verbose = 'vvvv'
     end
   end
 
   config.vm.define :pxevm do |node|
     node.vm.provider :libvirt do |domain|
-      domain.memory = 4096
-      domain.cpus = 2
+      domain.memory = 512
+      domain.cpus = 1
       domain.storage :file, :size => '10G', :type => 'qcow2'
       domain.boot 'hd'
       domain.boot 'network'
+      domain.management_network_name = 'pxetest_net'
+      domain.management_network_mac = '521122334455'
+      domain.management_network_mode = 'veryisolated'
     end
-
-    node.vm.network :private_network,
-      :libvirt__forward_mode => 'veryisolated',
-      :libvirt__network_name => 'rhevm_net',
-      :libvirt__dhcp_enabled => false
 
   end
 

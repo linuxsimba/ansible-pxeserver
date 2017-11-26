@@ -1,0 +1,3 @@
+---
+- name: run rc.local
+  command: /bin/bash /etc/rc.local

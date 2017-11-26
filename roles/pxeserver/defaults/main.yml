@@ -3,14 +3,12 @@
 # onie_installer_source: CumulusLinux-2.5.7-amd64.bin
 onie_installer_source: ""
 
-# Slack API URL:
-# Go to https://api.slack.com/incoming-webhooks to get one
-# TODO write a check in the tasks field to ensure this field is added
-slack_api_url: ""
-
 # IP to use to populate in the syslinux.cfg file to tell
 # This is the IP the PXE device will use to get its prseed.cfg or kickstart file
 pxe_ip: ''
+
+# Default PXE user, i.e user who is able to ssh into PXE VM
+pxe_user: root
 
 # Interface where the pxe IP resides. DNSmasq needs this to start properly
 pxe_interface: ''
@@ -29,9 +27,6 @@ os_list:
   xenial:
     initrd: 52b8d5e44438623e11b644f44b90afab
     linux: 1b31def73c61d37feb26626827ac0bb7
-  trusty-updates:
-    initrd: e08da33823cd309916a170a150d67a9e
-    linux:  i3fe4ef9bd97eff380565bc19b6590a47
 
 # List the categories of servers. Corresponds the different network configs
 # available. So far only foundation (bare metal) and osa_vm (virtual) are
@@ -45,9 +40,7 @@ os_list:
 #  - { name: osa_vm, os: trusty-updates, nic: 'auto' }
 
 
-server_categories:
-  - { name: foundation, os: xenial }
-  - { name: osa_vm, os: trusty-updates }
+server_categories: []
 
 # List the interfaces and network prefixes that will be PXE enabled
 # Example:
@@ -56,12 +49,14 @@ server_categories:
 #   "bridge.12":
 #       start_ip: 172.1.1.10
 #       end_ip: 172.1.1.200
+#       netmask: 255.255.255.0
 #       gw: 172.17.1.1
 #       boot_cumulus_image: true
 #
 #   "bridge.100":
 #       start_ip: 172.10.1.1
 #       end_ip: 172.10.1.200
+#       netmask: 255.255.255.0
 #       gw: 172.10.1.1
 dhcp_pools: {}
 
@@ -80,5 +75,5 @@ dhcp_hosts: {}
 
 # dns_nameservers: List of DNS servers to use
 # Example:
-# dns_nameservers: "192.168.100.1, 8.8.8.8, 8.8.8.4"
-dns_nameservers: ""
+# dns_nameservers: [192.168.100.1, 8.8.8.8, 8.8.8.4]
+dns_nameservers: ["{{ pxe_ip }}", 8.8.8.8]

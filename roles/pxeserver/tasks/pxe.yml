@@ -3,7 +3,8 @@
 - assert:
     that: "pxe_interface != ''"
 - assert:
-    that: "slack_api_url != ''"
+    that: "dns_domain is defined"
+
 - name: create tftpboot directory
   file: path="/tftpboot/{{item}}" state=directory
   with_items: "{{os_list}}"
@@ -58,7 +59,7 @@
   get_url:
     url: "http://archive.ubuntu.com/ubuntu/dists/{{item}}/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64/linux"
     dest: "/tftpboot/{{item}}/"
-    #  checksum: "md5:{{ os_list[item].linux }}"
+    checksum: "md5:{{ os_list[item].linux }}"
   with_items: "{{os_list.keys()}}"
   tags: ['copy_linux_image']
 
@@ -66,6 +67,6 @@
   get_url:
     url: "http://archive.ubuntu.com/ubuntu/dists/{{item}}/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64/initrd.gz"
     dest: "/tftpboot/{{item}}/"
-    # checksum: "md5:{{ os_list[item].initrd }}"
+    checksum: "md5:{{ os_list[item].initrd }}"
   with_items: "{{os_list}}"
   tags: ['copy_linux_image']

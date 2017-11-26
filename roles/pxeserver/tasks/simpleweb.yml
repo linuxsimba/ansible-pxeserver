@@ -18,6 +18,12 @@
     owner: "www-data"
   with_items: "{{server_categories}}"
 
+- name: get ssh public key of pxe user account
+  user:
+    name: "{{ pxe_user }}"
+    generate_ssh_key: yes
+  register: pxe_user
+
 - name: copy preseed basic network config script
   template:
     src: "network_config_{{item.name}}.sh.j2"
