@@ -1,3 +1,4 @@
+*.swo
 *.retry
 .vagrant
 *.pyc
