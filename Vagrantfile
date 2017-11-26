@@ -5,6 +5,7 @@
 ## This ensures that the fuel_master comes up first
 
 vm_box = 'yk0/ubuntu-xenial'
+pxe_ip = '10.1.1.2'
 
 Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
@@ -23,7 +24,7 @@ Vagrant.configure(2) do |config|
     node.vm.box = vm_box
     node.vm.hostname = "pxeserver"
     node.vm.network :private_network,
-      :ip => '10.1.1.1',
+      :ip => pxe_ip,
       :prefix => '24',
       :libvirt__forward_mode => 'veryisolated',
       :libvirt__network_name => 'pxetest_net',
@@ -31,6 +32,9 @@ Vagrant.configure(2) do |config|
 
     node.vm.provision :ansible do  |ansible|
       ansible.playbook = "pxeserver.yml"
+      ansible.extra_vars = {
+        "pxe_ip": pxe_ip
+      }
     end
   end
 

@@ -3,7 +3,6 @@
   gather_facts: no
   become: true
   vars:
-    pxe_ip: 10.1.1.1
     dns_domain: test.local
     dhcp_start: 10.1.1.20
     dhcp_end: 10.1.1.30
