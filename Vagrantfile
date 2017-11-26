@@ -4,6 +4,7 @@
 ## When running `vagrant up` run it with the `--no-parallel` option.
 ## This ensures that the fuel_master comes up first
 
+vm_box = 'yk0/ubuntu-xenial'
 
 Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
@@ -19,7 +20,7 @@ Vagrant.configure(2) do |config|
       domain.cpus = 1
     end
 
-    node.vm.box = 'ubuntu1604'
+    node.vm.box = vm_box
     node.vm.hostname = "pxeserver"
     node.vm.network :private_network,
       :ip => '10.1.1.1',
@@ -30,8 +31,6 @@ Vagrant.configure(2) do |config|
 
     node.vm.provision :ansible do  |ansible|
       ansible.playbook = "pxeserver.yml"
-      ansible.tags = 'nat_masq'
-      ansible.verbose = 'vvvv'
     end
   end
 
