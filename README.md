@@ -24,6 +24,15 @@ vagrant up pxeserver pxevm --no-parallel
 SSH into the pxeserver. Sudo to root, then ssh to ``ssh root@10.1.1.10`` to access the VM.
 Root password on the PXE VM is not enabled.
 
+```
+vagrant_hypervisor:$ vagrant ssh pxeserver
+
+vagrant@pxeserver:~$ sudo su -
+
+root@pxeserver:~# ssh root@10.1.1.10
+
+root@pxetestvm:~#
+```
 
 
 ## License
