@@ -39,9 +39,9 @@
         dhcp_pools: "{{ lookup('template', 'dhcp_pool.j2') | from_yaml }}"
       tags: pxeserver
 
-    - name: get nat masq interface. Its the DHCP interface on the pxeserver VM
+    - name: set nat masq interface
       set_fact:
-        nat_masq_iface: "{{ pxeserver_setup | iface_details('dhcp') }}"
+        nat_masq_iface: "{{ansible_default_ipv4.interface}}"
       tags: nat_masq
 
   roles:

@@ -17,7 +17,7 @@
 - name: enable NAT masquerading. Add to rc.local
   lineinfile:
     dest: /etc/rc.local
-    regexp: "iptables"
+    regexp: "iptables.+{{ nat_masq_iface}} -j"
     insertbefore: "exit 0"
     line: "/sbin/iptables -t nat -A POSTROUTING -o {{ nat_masq_iface }} -j MASQUERADE"
   notify: run rc.local
